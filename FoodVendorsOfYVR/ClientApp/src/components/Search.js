@@ -6,12 +6,11 @@ function Search(props) {
     const [search, setSearch] = useState("")
 
 
-    useEffect(() => {
-        const handleSearch = () => {
-            props.getValue(search)
-        };
-        handleSearch();
-    }, [search])
+    useEffect(() => {handleSearch();}, [search])
+
+    const handleSearch = () => {
+        props.getValue(search)
+    };
 
     const handleQuery = (event) => {
         setQuery(event.target.value)
@@ -20,7 +19,6 @@ function Search(props) {
     function handleSubmit(e) {
         e.preventDefault()
         setSearch(query)
-        props.getValue(search)
         setQuery("")
     }
 

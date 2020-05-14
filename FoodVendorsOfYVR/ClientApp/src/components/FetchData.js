@@ -56,7 +56,7 @@ export class FetchData extends Component {
         this.onSortChange = this.onSortChange.bind(this);
         this.Paginate = this.Paginate.bind(this); 
         this.getSearch = this.getSearch.bind(this);
-        this.initialState = this.state;        
+        this.getRefresh = this.getRefresh.bind(this);
     }
 
     componentDidMount() {
@@ -103,20 +103,25 @@ export class FetchData extends Component {
         this.setState({ foodVendors: sortedVendors });
     }
 
-    Paginate(currentPage) {
-        this.setState({ currentPage: currentPage });
+    Paginate(currentPagecomingfrompagination) {
+        this.setState({ currentPagevariableonfetchdata: currentPagecomingfrompagination });
     }
 
     getSearch(searchValue) {
         this.setState({ search: searchValue });
+        this.populateFoodVendorsData();                        
+    }
+
+    getRefresh() {
+        this.setState({ search: "" });
         this.populateFoodVendorsData();
     }
 
-    getSearched(foodVendors) {        
+    getSearched() {
+ 
+        const filteredFoodVendors = this.state.foodVendors.filter(foodVendor => {
 
-        const filteredFoodVendors = foodVendors.filter(foodVendor => {
-
-            if (foodVendor.business_name !== null)
+            if (foodVendor.business_name !== null && typeof (foodVendor.business_name) !== "undefined")
                 return foodVendor.business_name.toLowerCase().indexOf(this.state.search.toLowerCase()) !== -1 || foodVendor.description.toLowerCase().indexOf(this.state.search.toLowerCase()) !== -1;
             else
                 return foodVendor.description.toLowerCase().indexOf(this.state.search.toLowerCase()) !== -1;
@@ -129,7 +134,7 @@ export class FetchData extends Component {
         let currentVendors;        
 
         if ((typeof (this.state.search) !== "undefined") && this.state.search !== "") {
-            foodVendors = this.getSearched(foodVendors)           
+            foodVendors = this.getSearched()           
         }
 
         const indexOfLastVendor = this.state.currentPage * this.state.vendorsPerPage;
@@ -140,7 +145,7 @@ export class FetchData extends Component {
 
         return (
             <div>
-                <button className="btn btn-success my-2 my-sm-0" type="button" onClick={() => { this.getSearch("") }} >Refresh</button>
+                <button className="btn btn-success my-2 my-sm-0" type="button" onClick={() => { this.getRefresh() }} >Refresh</button>
                 <br />
                 <br />
                 <Search getValue={this.getSearch} />
@@ -198,6 +203,7 @@ export class FetchData extends Component {
     async populateFoodVendorsData() {        
         const response = await fetch('api/FoodVendor/FoodVendors');
         const data = await response.json();
+
         this.setState({
             foodVendors: data,
             loading: false,
@@ -205,8 +211,8 @@ export class FetchData extends Component {
             descriptionSort: 'asc',
             currentPage: 1,
             vendorsPerPage: 5,
-            selectedPlace: null,
-            vendorsMarkers: !this.state.search ? this.state.foodVendors : this.getSearched(this.state.foodVendors),
+            selectedVendor: null,
+            vendorsMarkers: !this.state.search ? this.state.foodVendors : this.getSearched(this.state.foodVendors)
         });
     }
 }
